@@ -1,6 +1,7 @@
 __author__ = 'ed'
 from flask import Flask, g, render_template, flash, redirect, url_for
-from flask.ext.login import LoginManager
+from flask.ext.bcrypt import check_password_hash
+from flask.ext.login import LoginManager, login_user
 import models
 import forms
 
@@ -19,7 +20,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-@login_manager.user_loader()
+@login_manager.user_loader
 def load_user(userid):
     try:
         return models.User.get(models.User.id == userid)
@@ -51,6 +52,22 @@ def register():
     return render_template('register.html', form=form)
 
 
+@app.route('/login', methods=('GET', 'POSt'))
+def login():
+    form= forms.LoginForm()
+    if form.validate_on_submit():
+        try:
+            user=models.User.get(models.User.email == form.email.data)
+        except models.DoesNotExist:
+            flash("Your email or password or name dont work", 'error')
+        else:
+            if checked_password_hash(user.password, form.password.data):
+                login_user(user)
+                flash("youve been logged in", "success")
+                return redirect(url_for('index'))
+            else:
+                flash("Your email or password or name dont work", 'error')
+    return render_template('login.html', form=form)
 
 
 @app.route('/')
@@ -58,13 +75,7 @@ def index():
     return 'Hey'
 
 
-if __name__== '__main__':
-    models.initialize()
-    models.User.create_user(
-        username='eddwinn',
-        email='eddwinn@gmail.com',
-        password='password',
-        admin=True
-    )
+if __name__ == '__main__':
+
 
     app.run(debug=DEBUG, host=HOST, port=PORT)
