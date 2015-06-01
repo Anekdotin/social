@@ -1,7 +1,11 @@
 __author__ = 'ed'
-from flask import Flask, g
+from flask import Flask, g, render_template, flash, redirect, url_for
 from flask.ext.login import LoginManager
 import models
+import forms
+
+
+
 
 DEBUG = True
 PORT = 8000
@@ -33,6 +37,25 @@ def after_request(response):
     g.db.close()
     return response
 
+@app.route('/register', methods=('GET', 'POST'))
+def register():
+    form = forms.RegisterForm()
+    if form.validate_on_submit():
+        flash("Yay, you registered", "Success")
+        models.User.create_user(
+            username=form.username.data,
+            email=form.email.data,
+            password=forms.password.data
+        )
+        return redirect(url_for('index'))
+    return render_template('register.html', form=form)
+
+
+
+
+@app.route('/')
+def index():
+    return 'Hey'
 
 
 if __name__== '__main__':
