@@ -1,7 +1,7 @@
 __author__ = 'ed'
 from flask import Flask, g, render_template, flash, redirect, url_for
 from flask.ext.bcrypt import check_password_hash
-from flask.ext.login import LoginManager, login_user
+from flask.ext.login import LoginManager, login_user, logout_user, login_required
 import models
 import forms
 
@@ -69,10 +69,16 @@ def login():
                 flash("Your email or password or name dont work", 'error')
     return render_template('login.html', form=form)
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("you have been logged out")
+    return redirect(url_for('index'))
 
 @app.route('/')
 def index():
-    return 'Hey'
+    return render_template('login.html')
 
 
 if __name__ == '__main__':

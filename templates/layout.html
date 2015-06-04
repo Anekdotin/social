@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>{%  block title %} twoCans {% endblock %}</title>
+</head>
+<body>
+
+
+
+<header>
+    <div class = 'row'>
+        <div class="grid-33">
+            <a href="{{ url_for('index') }}" class="icon-logo"></a>
+
+    </div>
+
+    <div class="grid-33">
+<h1>
+
+    Hello{%  if current_user.is_authenticated() %}
+    {{ current_user.username }}
+    {{% endif %}} !
+
+</h1>
+
+    </div>
+        <div class="grid-33">
+{%  if current_user.is_autheticated %}
+            <a href="{{ url_for('logout') }}" class="icon-power" title="Log out"></a>
+
+            <a href="{{ url_for('login') }}" class="icon-power" title="Log in"></a>
+            <a href="{{ url_for('register') }}" class="icon-power" title="Register"></a>
+            {% endif %}
+
+    </div>
+
+        </div>
+
+{%  with messages = get_flashed_messages(with_categories=True %}
+{% if messages %}
+    {% for category, message in messages %}
+    <div class=""notification {{ category }}"> {{ message }}</div>
+
+{% endif %}
+{% endwith %}
+
+</header>
+<div class="grid-33">
+
+    <div class="grid-33">
+        <nav>
+            <a href="{{ url_for('index') }}" >All/a>
+                </nav>
+
+        {%  block content %} {% endblock %}
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
