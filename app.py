@@ -1,5 +1,5 @@
 __author__ = 'ed'
-from flask import Flask, g, render_template, flash, redirect, url_for
+from flask import Flask, g, render_template, flash, redirect, url_for, abort
 from flask.ext.bcrypt import check_password_hash
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
 import models
@@ -9,7 +9,7 @@ import forms
 
 
 DEBUG = True
-PORT = 8000
+PORT = 8080
 HOST = '0.0.0.0'
 
 app=Flask(__name__)
@@ -43,7 +43,7 @@ def after_request(response):
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
-    form = forms.RegisterForm()
+    form = forms.RegistrationForm()
     if form.validate_on_submit():
         flash("Yay, you registered", "Success")
         models.User.create_user(
@@ -106,8 +106,15 @@ def index():
 def stream(username=None):
     template = 'stream.html'
     if username and username != current_user.username:
-        user = models.User.select().where(models.User.username**username).get()
-        stream = user.posts.limit(100)
+        try:
+            user = models.User.select().where(models.User.username**username).get()
+
+        except models.DoesNotExist:
+            abort(404)
+        else:
+            stream = user.posts.limit(100)
+
+
     else:
         stream = current_user.get_stream().limit(100)
         user = current_user
@@ -117,9 +124,74 @@ def stream(username=None):
     return render_template(template, stream=stream, user=user)
 
 
+@app.route('/follow/<username>')
+@login_required
+def follow(username):
+    try:
+        to_user = models.User.get(models.User.username**username)
+    except models.DoesNotExist:
+        pass
+    else:
+        try:
+            models.Relationship.create(
+                from_user=g.user._get_current_object(),
+                to_user=to_user
+            )
+        except models.IntegrityError:
+            pass
+        else:
+            flash("your now follow {}!".format(to_user.username), "success")
+        return redirect(url_for('stream', username=to_user.username))
+
+
+@app.route('/unfollow/<username>')
+@login_required
+def unfollow(username):
+    try:
+        to_user = models.User.get(models.User.username**username)
+    except models.DoesNotExist:
+        abort(404)
+    else:
+        try:
+            models.Relationship.get(
+                from_user=g.user._get_current_object(),
+                to_user=to_user
+            ).delete_instance()
+        except models.IntegrityError:
+            abort(404)
+        else:
+            flash("your now dont like or follow {}!".format(to_user.username), "success")
+        return redirect(url_for('stream', username=to_user.username))
+
+
+
+@app.route('/post/<int:post_id>')
+def view_post(post_id):
+    posts = models.Post.select().where(models.Post.id == post_id)
+    if posts.count() == 0:
+        abort(404)
+    return render_template('stream.html', stream=posts)
+
+
+
+@app.errorhandler404
+def not_found(error):
+    return render_template('404.html'), 404
+
+
+
 
 
 if __name__ == '__main__':
-
+    models.initiliaze()
+    try:
+        models.User.create_user(
+            username='Edwin',
+            email='edwin@gmail.com',
+            password='password',
+            admin=True
+        )
+    except ValueError:
+        pass
 
     app.run(debug=DEBUG, host=HOST, port=PORT)

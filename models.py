@@ -24,8 +24,29 @@ class User(UserMixin, Model):
 
         def get_stream(self):
             return Post.select().where(
+                (Post.user << self.following()) |
                 (Post.user == self)
             )
+
+        def following(self):
+            """The users we are following"""
+            return (
+                User.select().join(
+                    Releationship, on=Releationship.to_user
+                ).where(
+                    Releationship.from_user == self
+                )
+            )
+        def followers(self):
+            """get users following"""
+            return (
+                User.select().join(
+                    Releationship, on=Releationship.from_user
+                ).where(
+                    Releationship.to_user == self
+                )
+            )
+
 
     @classmethod
     def create_user(cls, username, email, password, admin=False):
@@ -38,7 +59,7 @@ class User(UserMixin, Model):
             )
 
         except IntegrityError:
-            raise IntegrityError("user already exists")
+            raise ValueError("user already exists")
 
 class Post(Model):
     timestamp = DateTimeField(default=datetime.datetime.now)
@@ -53,12 +74,24 @@ class Post(Model):
         database = DATABASE
         order_by = ('-timestamp',)
 
+class Releationship(Model):
+    from_user = ForeignKeyField(User, related_name='relationships')
+    to_user = ForeignKeyField(User, related_name='related_to')
+
+    class Meta:
+        database = DATABASE
+        indexes = (
+            (('from_user', 'to_user'), True)
+
+        )
 
 
 
-def initialize():
+
+
+def initiliaze():
     DATABASE.connect()
-    DATABASE.create_tables([User, Post], safe=True)
+    DATABASE.create_tables([User, Post, Releationship], safe=True)
     DATABASE.close()
 
 
