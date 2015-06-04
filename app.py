@@ -1,7 +1,7 @@
 __author__ = 'ed'
 from flask import Flask, g, render_template, flash, redirect, url_for
 from flask.ext.bcrypt import check_password_hash
-from flask.ext.login import LoginManager, login_user, logout_user, login_required
+from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
 import models
 import forms
 
@@ -32,6 +32,9 @@ def load_user(userid):
 def before_request():
     g.db = models.DATABASE
     g.db.connect()
+    g.user = current_user
+
+
 
 @app.after_request
 def after_request(response):
@@ -61,7 +64,7 @@ def login():
         except models.DoesNotExist:
             flash("Your email or password or name dont work", 'error')
         else:
-            if checked_password_hash(user.password, form.password.data):
+            if check_password_hash(user.password, form.password.data):
                 login_user(user)
                 flash("youve been logged in", "success")
                 return redirect(url_for('index'))
@@ -76,9 +79,44 @@ def logout():
     flash("you have been logged out")
     return redirect(url_for('index'))
 
+
+@app.route('/new_post', methods=('GET', 'POST'))
+@login_required
+def post():
+    form = forms.PostForm
+    if form.validate_on_submit():
+        models.Post.create(user=g.user._get_current_object(),
+                           content=form.content.data.strip())
+        flash("Posted!")
+        return redirect(url_for('index'))
+    return render_template('post.html', form=form)
+
+
+
+
+
 @app.route('/')
 def index():
-    return render_template('login.html')
+    stream = models.Post.select().limit(100)
+    return render_template('stream.html', stream=stream)
+
+
+@app.route('/stream')
+@app.route('/stream/<username>')
+def stream(username=None):
+    template = 'stream.html'
+    if username and username != current_user.username:
+        user = models.User.select().where(models.User.username**username).get()
+        stream = user.posts.limit(100)
+    else:
+        stream = current_user.get_stream().limit(100)
+        user = current_user
+    if username:
+        template = 'user_stream.html'
+
+    return render_template(template, stream=stream, user=user)
+
+
 
 
 if __name__ == '__main__':
