@@ -49,7 +49,7 @@ def register():
         models.User.create_user(
             username=form.username.data,
             email=form.email.data,
-            password=forms.password.data
+            password=form.password.data
         )
         return redirect(url_for('index'))
     return render_template('register.html', form=form)
@@ -57,10 +57,10 @@ def register():
 
 @app.route('/login', methods=('GET', 'POSt'))
 def login():
-    form= forms.LoginForm()
+    form = forms.LoginForm()
     if form.validate_on_submit():
         try:
-            user=models.User.get(models.User.email == form.email.data)
+            user = models.User.get(models.User.email == form.email.data)
         except models.DoesNotExist:
             flash("Your email or password or name dont work", 'error')
         else:
@@ -83,7 +83,7 @@ def logout():
 @app.route('/new_post', methods=('GET', 'POST'))
 @login_required
 def post():
-    form = forms.PostForm
+    form = forms.PostForm()
     if form.validate_on_submit():
         models.Post.create(user=g.user._get_current_object(),
                            content=form.content.data.strip())
@@ -106,18 +106,12 @@ def index():
 def stream(username=None):
     template = 'stream.html'
     if username and username != current_user.username:
-        try:
-            user = models.User.select().where(models.User.username**username).get()
-
-        except models.DoesNotExist:
-            abort(404)
-        else:
-            stream = user.posts.limit(100)
-
-
+        user = models.User.select().where(models.User.username**username).get()
+        stream = user.posts.limit(100)
     else:
-        stream = current_user.get_stream().limit(100)
         user = current_user
+        stream = current_user.get_stream().limit(100)
+
     if username:
         template = 'user_stream.html'
 
