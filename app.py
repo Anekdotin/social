@@ -174,7 +174,7 @@ def view_post(post_id):
 
 
 
-@app.errorhandler404
+@app.errorhandler(404)
 def not_found(error):
     return render_template('404.html'), 404
 
