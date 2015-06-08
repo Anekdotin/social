@@ -5,18 +5,29 @@
 <head>
 
 </head>
-<body>
+
 
 
 
 <header>
 
-        <div class="grid-30" margin-left="10">
-            <a href="{{ url_for('index') }}" class="icon-logo"></a>
+ <div class="navbar-header">
 
+<a class="navbar-brand" href="/">
+   <img style="max-width:150px; margin-top: -7px;" src="{{ url_for('static', filename='images/fb.jpg') }}">
+
+</a>
     </div>
+    <!-- Write your comments here -->
 
-    <div class="grid-30">
+<!-- Write your comments here -->
+
+      <ul class="nav navbar-nav navbar-right">
+
+	  <div style="margin-right: 10px; margin-left: 15px; margin-top: 5px; margin-bottom: 5px;" class="container-fluid">
+
+
+    <div class="container-fluid">
 <h1>
 
     Hello{%  if current_user.is_authenticated() %}
@@ -26,17 +37,13 @@
 </h1>
 
     </div>
-        <div class="grid-30" style="margin-left: 500px">
 {% if current_user.is_autheticated %}
-            <a href="{{ url_for('logout') }}" class="icon-power" title="Log out">log Out</a>
+            <a href="{{ url_for('logout') }}" class="icon-power" title="Log out"><span class="glyphicon glyphicon-heart"></span>log Out</a>
 {% else %}
-            <a href="{{ url_for('login') }}" class="icon-power" title="Log in">log In</a>
-            <a href="{{ url_for('register') }}" class="icon-power" title="Register">Register</a>
+            <a href="{{ url_for('login') }}" class="icon-power" title="Log in"><span class="glyphicon glyphicon-log-out"></span>log In</a>
+            <a href="{{ url_for('register') }}" class="icon-power" title="Register"><span class="glyphicon glyphicon-log-in"></span>Register</a>
 
 {% endif %}
-
-    </div>
-
 
 
 {% with messages = get_flashed_messages(with_categories=True) %}
@@ -47,10 +54,49 @@
 {% endif %}
 {% endwith %}
 
-</header>
-<div class="row">
 
-    <div class="main" >
+<!-- Write your comments here -->
+
+
+  </div>
+
+
+</ul>
+
+
+</header>
+<body>
+
+
+
+
+
+	<div class ="container-fluid" style="min-height:100% max-width:50%">
+	{%  with messages = get_flashed_messages() %}
+	{%  if messages %}
+	{% for message in messages %}
+	<div class="alert alert-warning alert-dismissible" role="alert">
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
+	{{ message }}
+
+
+
+	{% endfor %}
+	{%  endif %}
+
+
+
+	{%  endwith %}
+
+</div></div>
+
+
+
+
+
+
+
+    <div class="container-fluid" style="margin-left:100px max-width:50%">
         <nav>
             <a href="{{ url_for('index') }}" >Home</a>
 
@@ -58,7 +104,7 @@
                 <a href="{{ url_for('stream', username=current_user.username) }}">Following</a>
                 <a href="{{ url_for('post') }}" class="new">Create New Post</a>
             {% endif %}
-                </nav></div></div>
+                </nav></div>
 
 
         {%  block content %} {% endblock %}
