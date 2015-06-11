@@ -1,3 +1,4 @@
+
 __author__ = 'ed'
 from flask import Flask, g, render_template, flash, redirect, url_for, abort
 from flask.ext.bcrypt import check_password_hash
@@ -113,15 +114,15 @@ def stream(username=None):
         except models.DoesNotExist:
             abort(404)
         else:
-            stream = user.posts.limit(100)
+            stream = user.posts
 
 
     else:
         user = current_user
-        stream = current_user.get_stream().limit(100)
+        stream = current_user.posts
 
 
-    if username != username:
+    if username != current_user:
         template = 'user_stream.html'
 
     return render_template(template, stream=stream, user=user)
@@ -156,7 +157,7 @@ def unfollow(username):
         abort(404)
     else:
         try:
-            models.Relationship.get(
+            models.Releationship.get(
                 from_user=g.user._get_current_object(),
                 to_user=to_user
             ).delete_instance()
