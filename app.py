@@ -92,14 +92,11 @@ def post():
         return redirect(url_for('index'))
     return render_template('post.html', form=form)
 
-
-
-
-
 @app.route('/')
 def index():
     stream = models.Post.select().limit(100)
     return render_template('stream.html', stream=stream)
+
 
 
 @app.route('/stream')
@@ -142,7 +139,7 @@ def follow(username):
                 to_user=to_user
             )
         except models.IntegrityError:
-            pass
+            print("messed up")
         else:
             flash("your now follow {}!".format(to_user.username), "success")
         return redirect(url_for('stream', username=to_user.username))

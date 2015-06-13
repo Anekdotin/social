@@ -19,33 +19,33 @@ class User(UserMixin, Model):
         database = DATABASE
         order_by = ('-joined_at',)
 
-        def get_posts(self):
-            return Post.select().where(Post.user == self)
+    def get_posts(self):
+        return Post.select().where(Post.user == self)
 
-        def get_stream(self):
-            return Post.select().where(
-                (Post.user << self.following()) |
-                (Post.user == self)
-            )
+    def get_stream(self):
+        return Post.select().where(
+            (Post.user << self.following()) |
+            (Post.user == self)
+        )
 
-        def following(self):
-            """The users we are following"""
-            return (
-                User.select().join(
-                    Releationship, on=Releationship.to_user
-                ).where(
-                    Releationship.from_user == self
-                )
+    def following(self):
+        """The users we are following"""
+        return (
+            User.select().join(
+                Releationship, on=Releationship.to_user
+            ).where(
+                Releationship.from_user == self
             )
-        def followers(self):
-            """get users following"""
-            return (
-                User.select().join(
-                    Releationship, on=Releationship.from_user
-                ).where(
-                    Releationship.to_user == self
-                )
+        )
+    def followers(self):
+        """get users following"""
+        return (
+            User.select().join(
+                Releationship, on=Releationship.from_user
+            ).where(
+                Releationship.to_user == self
             )
+        )
 
 
     @classmethod
