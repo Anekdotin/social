@@ -1,6 +1,6 @@
 
 __author__ = 'ed'
-from flask import Flask, g, render_template, flash, redirect, url_for, abort
+from flask import Flask, g, render_template, flash, redirect, url_for, abort, Markup
 from flask.ext.bcrypt import check_password_hash
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user, AnonymousUserMixin
 import models
@@ -98,14 +98,20 @@ def index():
     return render_template('stream.html', stream=stream)
 
 
-
+@app.route('/contentsignup')
 @app.route('/stream')
 @app.route('/stream/<username>')
 def stream(username=None):
     template = 'stream.html'
+    message = Markup("<h1>You Must Signup!</h1>")
+
+
+
 
     if current_user.is_anonymous():
+        flash(message)
         return redirect(url_for('register'))
+
 
     if username and username != current_user.username:
         try:

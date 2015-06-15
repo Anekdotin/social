@@ -47,8 +47,6 @@ class User(UserMixin, Model):
             )
         )
 
-    def is_anonymous(self):
-        return True
 
 
     @classmethod
