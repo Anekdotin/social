@@ -2,7 +2,7 @@
 __author__ = 'ed'
 from flask import Flask, g, render_template, flash, redirect, url_for, abort
 from flask.ext.bcrypt import check_password_hash
-from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
+from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user, AnonymousUserMixin
 import models
 import forms
 
@@ -103,6 +103,10 @@ def index():
 @app.route('/stream/<username>')
 def stream(username=None):
     template = 'stream.html'
+
+    if current_user.is_anonymous():
+        return redirect(url_for('register'))
+
     if username and username != current_user.username:
         try:
             user = models.User.select().where(models.User.username**username).get()
@@ -121,6 +125,8 @@ def stream(username=None):
 
     if username != current_user:
         template = 'user_stream.html'
+
+
 
     return render_template(template, stream=stream, user=user)
 

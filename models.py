@@ -47,6 +47,9 @@ class User(UserMixin, Model):
             )
         )
 
+    def is_anonymous(self):
+        return True
+
 
     @classmethod
     def create_user(cls, username, email, password, admin=False):

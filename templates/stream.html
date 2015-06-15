@@ -3,6 +3,7 @@
 {% block content %}
 
 {% for post in stream %}
+
     <article>
     <h2>
         <a href="{{ url_for('stream', username=post.user.username) }}">{{ post.user.username }}</a>
@@ -10,10 +11,10 @@
     <i class="clock"></i><time data-time="{{ post.timestamp }}" class="'distime" datetime="{{
             post.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}"> {{ post.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</time>
     <a href="{{ url_for('view_post', post_id=post.id) }}" class="view">View</a>
-    <div class="post">
+    <div class="post" style="margin-left:450px max-width:50%">
         {{ post.content }}
-    </div>
 
+</div>
 
     </article>
 {% endfor %}
