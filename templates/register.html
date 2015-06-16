@@ -4,7 +4,11 @@
 {%  from 'macros.html' import render_field %}
 
 {%  block content %}
-<form method="POST" action="" class="form">
+
+
+    <form method="POST" action="" class="form-inline">
+
+
     {{ form.hidden_tag() }}
     {%  for field in form %}
         {{ render_field(field) }}
@@ -12,5 +16,9 @@
     {% endfor %}
 <button type="submit" id="submit"> Register!</button>
 </form>
+
+
+
+
 
 {%  endblock %}

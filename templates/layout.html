@@ -1,32 +1,20 @@
-
-
-
 <html>
-
 <link rel="stylesheet" media="screen" href = "{{ url_for('static', filename='css/bootstrap.min.css') }}">
+
+<meta name="viewport" content = "width=device-width, initial-scale=1.0">
 <head>
-
 </head>
-
-
-
-
 <header>
-
- <div class="navbar-header">
+   <div class="navbar-header">
 
 <a class="navbar-brand" href="/">
    <img style="max-width:150px; margin-top: -7px;" src="{{ url_for('static', filename='images/fb.jpg') }}">
 
 </a>
     </div>
-    <!-- Write your comments here -->
-
-<!-- Write your comments here -->
+<div class="container-fluid">
 
       <ul class="nav navbar-nav navbar-right">
-
-	  <div style="margin-right: 10px; margin-left: 15px; margin-top: 5px; margin-bottom: 5px;" class="container-fluid">
 
 
     <div class="container-fluid">
@@ -46,7 +34,35 @@
             <a href="{{ url_for('register') }}" class="icon-power" title="Register"><span class="glyphicon glyphicon-log-in"></span>Register</a>
 {% endif %}
 
-    </div>
+      </ul>
+	</ul>
+  </div>
+
+</header>
+
+
+
+{% block navbar %}
+
+
+    <div class="container-fluid" style="margin-left:100px max-width:50%">
+        <nav>
+            <a href="{{ url_for('index') }}" >Home</a>
+
+            {% if current_user.is_authenticated() %}
+                <a href="{{ url_for('stream', username=current_user.username) }}">Following</a>
+                <a href="{{ url_for('post') }}" class="new">Create New Post</a>
+            {% endif %}
+                </nav></div>
+{% endblock %}
+
+
+
+
+
+
+{% block flash %}
+
 
 {% with messages = get_flashed_messages(with_categories=True) %}
 {% if messages %}
@@ -65,10 +81,13 @@
 
 </ul>
 
+{% endblock %}
 
-</header>
-<body>
 
+
+
+
+{% block messages %}
 
 
 
@@ -93,35 +112,26 @@
 </div></div>
 
 
+{% endblock %}
 
 
 
 
 
-    <div class="container-fluid" style="margin-left:100px max-width:50%">
-        <nav>
-            <a href="{{ url_for('index') }}" >Home</a>
-
-            {% if current_user.is_authenticated() %}
-                <a href="{{ url_for('stream', username=current_user.username) }}">Following</a>
-                <a href="{{ url_for('post') }}" class="new">Create New Post</a>
-            {% endif %}
-                </nav></div>
-
-
-        {%  block content %} {% endblock %}
+{%  block content %}{% endblock %}
 
 
 
 
 
 
-<footer></footer>
+
+<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script type = "text/javascript" src = "{{ url_for('static', filename='js/bootstrap.min.js' )}}"></script>
 
 
-
-
-<script type = "text/javascript" src = "/static/js/bootstrap.js"></script>
-<script type = "text/javascript" src = "/static/js/bootstrap.min.js"></script>
 </body>
+
+
+
 </html>

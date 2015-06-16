@@ -5,7 +5,7 @@ from flask.ext.bcrypt import check_password_hash
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user, AnonymousUserMixin
 import models
 import forms
-
+from flask.ext.bootstrap import Bootstrap
 
 
 
@@ -13,8 +13,11 @@ DEBUG = True
 PORT = 8080
 HOST = '0.0.0.0'
 
-app=Flask(__name__)
+app = Flask(__name__)
 app.secret_key = 'Bacon'
+
+
+bootstrap = Bootstrap(app)
 
 
 login_manager = LoginManager()
