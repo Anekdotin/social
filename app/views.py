@@ -1,9 +1,10 @@
 
 __author__ = 'ed'
-from flask import g, render_template, flash, redirect, url_for, abort
+from flask import g, render_template, flash, redirect, url_for, abort, session, request
 
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
 from datetime import datetime
+from flask.ext.bcrypt import check_password_hash
 import app.models
 from app import forms, models
 from app import app, db
@@ -21,9 +22,23 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
-@login_manager.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+
+@app.route('/login', methods=('GET', 'POSt'))
+def login():
+    form = forms.LoginForm()
+    if form.validate_on_submit():
+        try:
+            user = models.User.get(models.User.email == form.email.data)
+        except models.DoesNotExist:
+            flash("Your email or password or name dont work", 'error')
+        else:
+            if check_password_hash(user.password, form.password.data):
+                login_user(user)
+                flash("youve been logged in", "success")
+                return redirect(url_for('index'))
+            else:
+                flash("Your email or password or name dont work", 'error')
+    return render_template('login.html', form=form)
 
 
 @login_manager.user_loader
@@ -44,7 +59,6 @@ def before_request():
 
 
 
-
 @app.route('/register', methods=('GET', 'POST'))
 def register():
     form = forms.RegistrationForm()
@@ -59,29 +73,28 @@ def register():
     return render_template('register.html', form=form)
 
 
-@app.route('/login', methods=('GET', 'POSt'))
-def login():
-    form = forms.LoginForm()
-    if form.validate_on_submit():
-        try:
-            user = models.User.get(models.User.email == form.email.data)
-        except models.DoesNotExist:
-            flash("Your email or password or name dont work", 'error')
-        else:
-            if check_password_hash(user.password, form.password.data):
-                login_user(user)
-                flash("youve been logged in", "success")
-                return redirect(url_for('index'))
-            else:
-                flash("Your email or password or name dont work", 'error')
-    return render_template('login.html', form=form)
+
 
 @app.route('/logout')
-@login_required
 def logout():
     logout_user()
-    flash("you have been logged out")
     return redirect(url_for('index'))
+
+
+@app.route('/user/<nickname>')
+@login_required
+def user(nickname):
+    user = User.query.filter_by(nickname=nickname).first()
+    if user is None:
+        flash('User %s not found.' % nickname)
+        return redirect(url_for('index'))
+    posts = [
+        {'author': user, 'body': 'Test post #1'},
+        {'author': user, 'body': 'Test post #2'}
+    ]
+    return render_template('user.html',
+                           user=user,
+                           posts=posts)
 
 
 @app.route('/new_post', methods=('GET', 'POST'))

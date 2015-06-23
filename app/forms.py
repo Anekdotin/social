@@ -1,9 +1,17 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, BooleanField, TextAreaField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, BooleanField, TextAreaField, PasswordField
+from wtforms.validators import DataRequired, Length, ValidationError, Regexp, Email, EqualTo
 from .models import User
 
 
+
+def name_exists(form, field):
+        if User.select().where(User.username == field.data).exists():
+            raise ValidationError("Username exists")
+
+def email_exists(form, field):
+        if User.select().where(User.email == field.data).exists():
+            raise ValidationError("email exists")
 class LoginForm(Form):
     openid = StringField('openid', validators=[DataRequired()])
     remember_me = BooleanField('remember_me', default=False)
@@ -28,3 +36,42 @@ class EditForm(Form):
                                         'Please choose another one.')
             return False
         return True
+
+
+
+
+
+class RegistrationForm(Form):
+    username = StringField(
+        'Username',
+        validators=[
+            DataRequired(),
+            Regexp(
+                r'^[a-zA-Z0-9_]+$',
+                message="Username should be one word, letters and numbers only"
+            ),
+            name_exists
+        ])
+    email = StringField(
+        'Email',
+        validators=[
+            DataRequired(),
+            Email(),
+            email_exists
+
+
+        ])
+    password = PasswordField(
+        'Password',
+        validators=[
+            DataRequired(),
+            Length(min=5),
+            EqualTo('password2', message='Passwords dont match')
+        ])
+    password2 = PasswordField(
+        'Confirm Password',
+        validators=([DataRequired()]
+        )
+
+    )
+
