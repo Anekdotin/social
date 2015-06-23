@@ -1,23 +1,19 @@
 
 __author__ = 'ed'
-from flask import Flask, g, render_template, flash, redirect, url_for, abort, Markup
-from flask.ext.bcrypt import check_password_hash
-from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user, AnonymousUserMixin
-import models
-import forms
-from flask.ext.bootstrap import Bootstrap
+from flask import g, render_template, flash, redirect, url_for, abort
+
+from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
+
+import app.models
+from app import forms, models
+from app import app, db
+from .forms import LoginForm, EditForm
+from .models import User
 
 
 
-DEBUG = True
-PORT = 8080
-HOST = '0.0.0.0'
 
-app = Flask(__name__)
 app.secret_key = 'Bacon'
-
-
-bootstrap = Bootstrap(app)
 
 
 login_manager = LoginManager()
@@ -28,13 +24,13 @@ login_manager.login_view = 'login'
 def load_user(userid):
     try:
         return models.User.get(models.User.id == userid)
-    except models.DoesNotExist:
+    except ValueError:
         return None
 
 
 @app.before_request
 def before_request():
-    g.db = models.DATABASE
+    g.db = models.db
     g.db.connect()
     g.user = current_user
 
@@ -101,20 +97,15 @@ def index():
     return render_template('stream.html', stream=stream)
 
 
-@app.route('/contentsignup')
+
+
 @app.route('/stream')
 @app.route('/stream/<username>')
 def stream(username=None):
     template = 'stream.html'
-    message = Markup("<h1>You Must Signup!</h1>")
-
-
-
 
     if current_user.is_anonymous():
-        flash(message)
         return redirect(url_for('register'))
-
 
     if username and username != current_user.username:
         try:
@@ -134,8 +125,6 @@ def stream(username=None):
 
     if username != current_user:
         template = 'user_stream.html'
-
-
 
     return render_template(template, stream=stream, user=user)
 
@@ -210,4 +199,3 @@ if __name__ == '__main__':
     except ValueError:
         pass
 
-    app.run(debug=DEBUG, host=HOST, port=PORT)
