@@ -3,7 +3,7 @@ __author__ = 'ed'
 from flask import g, render_template, flash, redirect, url_for, abort
 
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
-
+from datetime import datetime
 import app.models
 from app import forms, models
 from app import app, db
@@ -20,6 +20,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+
 @login_manager.user_loader
 def load_user(userid):
     try:
@@ -30,16 +36,14 @@ def load_user(userid):
 
 @app.before_request
 def before_request():
-    g.db = models.db
-    g.db.connect()
     g.user = current_user
+    if g.user.is_authenticated():
+        g.user.last_seen = datetime.utcnow()
+        db.session.add(g.user)
+        db.session.commit()
 
 
 
-@app.after_request
-def after_request(response):
-    g.db.close()
-    return response
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
@@ -92,9 +96,24 @@ def post():
     return render_template('post.html', form=form)
 
 @app.route('/')
+@app.route('/index')
+@login_required
 def index():
-    stream = models.Post.select().limit(100)
-    return render_template('stream.html', stream=stream)
+    user = g.user
+    posts = [
+        {
+            'author': {'nickname': 'John'},
+            'body': 'Beautiful day in Portland!'
+        },
+        {
+            'author': {'nickname': 'Susan'},
+            'body': 'The Avengers movie was so cool!'
+        }
+    ]
+    return render_template('index.html',
+                           title='Home',
+                           user=user,
+                           posts=posts)
 
 
 
