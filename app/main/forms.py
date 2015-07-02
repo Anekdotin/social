@@ -17,6 +17,10 @@ class EditProfileForm(Form):
     about_me = TextAreaField('About me')
     submit = SubmitField('Submit')
 
+class PostForm(Form):
+    body = TextAreaField("What's on your mind?", validators=[Required()])
+    submit = SubmitField('Submit')
+
 
 class EditProfileAdminForm(Form):
     email = StringField('Email', validators=[Required(), Length(1, 64),

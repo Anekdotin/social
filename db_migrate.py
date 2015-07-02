@@ -1,5 +1,5 @@
 __author__ = 'ed'
-__author__ = 'ed'
+
 #!flask/bin/python
 import imp
 
