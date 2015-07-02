@@ -10,6 +10,11 @@ from .forms import LoginForm, RegistrationForm, ChangePasswordForm,\
     PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
 
 
+def before_request():
+    current_user.ping()
+
+
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
