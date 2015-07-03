@@ -2,9 +2,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
 from flask.ext.login import UserMixin, AnonymousUserMixin
-from . import db, login_manager
+from app import db, login_manager
 from datetime import datetime
-from app import db
+
 
 class Permission:
     FOLLOW = 0x01
@@ -171,3 +171,4 @@ login_manager.anonymous_user = AnonymousUser
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
