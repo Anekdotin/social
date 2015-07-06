@@ -6,6 +6,11 @@ from wtforms import ValidationError
 from ..models import Role, User
 
 
+class CommentForm(Form):
+    body = StringField('Enter your comment', validators=[Required()])
+    submit = SubmitField('Submit')
+
+
 class NameForm(Form):
     name = StringField('What is your name?', validators=[Required()])
     submit = SubmitField('Submit')
