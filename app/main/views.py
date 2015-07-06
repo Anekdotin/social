@@ -3,15 +3,15 @@ from flask.ext.login import login_required, current_user
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from .. import db
-from ..models import Role, User, Permission, Post
+from ..models import Role, User, Post, Permission
 from ..decorators import admin_required
 
 
-@main.route('/')
+@main.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES) and \
-        form.validate_on_submit():
+            form.validate_on_submit():
         post = Post(body=form.body.data,
                     author=current_user._get_current_object())
         db.session.add(post)
@@ -25,7 +25,8 @@ def index():
 @main.route('/user/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user.html', user=user)
+    posts = user.posts.order_by(Post.timestamp.desc()).all()
+    return render_template('user.html', user=user, posts=posts)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])

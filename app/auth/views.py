@@ -47,7 +47,7 @@ def register():
         db.session.commit()
 
 
-        flash('A confirmation email has been sent to you by email.')
+        flash('Thanks for registering.')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 

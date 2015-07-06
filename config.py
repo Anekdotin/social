@@ -10,46 +10,19 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
-class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    MAIL_SERVER = 'smtp.googlemail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('eddwinn@gmail.com')
-    MAIL_PASSWORD = os.environ.get('Julie774')
-    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
-    FLASKY_MAIL_SENDER = 'Flasky Admin <flasky@example.com>'
-    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
 
+# email server
+MAIL_SERVER = 'your.mailserver.com'
+MAIL_PORT = 25
+MAIL_USE_TLS = False
+MAIL_USE_SSL = False
+MAIL_USERNAME = 'you'
+MAIL_PASSWORD = 'your-password'
 
-    @staticmethod
-    def init_app(app):
-        pass
+# administrator list
+ADMINS = ['eddwinn@example.com']
 
+# pagination
+POSTS_PER_PAGE = 3
+MAX_SEARCH_RESULTS = 50
 
-class DevelopmentConfig(Config):
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
-    SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
-
-
-class TestingConfig(Config):
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
-    SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
-
-
-class ProductionConfig(Config):
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
-    SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
-
-
-config = {
-    'development': DevelopmentConfig,
-    'testing': TestingConfig,
-    'production': ProductionConfig,
-
-    'default': DevelopmentConfig
-}
