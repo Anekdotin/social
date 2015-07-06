@@ -7,14 +7,15 @@ from ..models import Role, User, Post, Permission
 from ..decorators import admin_required
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/', methods = ['GET', 'POST'])
+@main.route('/index', methods = ['GET', 'POST'])
 def index():
     form = PostForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and \
-            form.validate_on_submit():
-        post = Post(body=form.body.data,
-                    author=current_user._get_current_object())
+    if form.validate_on_submit():
+        post = Post(body=form.body.data,  author=current_user._get_current_object())
         db.session.add(post)
+        db.session.commit()
+        flash('Your post is now live!')
         return redirect(url_for('.index'))
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     return render_template('index.html', form=form, posts=posts)
@@ -38,6 +39,7 @@ def edit_profile():
         current_user.location = form.location.data
         current_user.about_me = form.about_me.data
         db.session.add(current_user)
+        db.session.commit()
         flash('Your profile has been updated.')
         return redirect(url_for('.user', username=current_user.username))
     form.name.data = current_user.name
@@ -61,6 +63,7 @@ def edit_profile_admin(id):
         user.location = form.location.data
         user.about_me = form.about_me.data
         db.session.add(user)
+        db.session.commit()
         flash('The profile has been updated.')
         return redirect(url_for('.user', username=user.username))
     form.email.data = user.email
