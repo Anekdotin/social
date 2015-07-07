@@ -1,10 +1,11 @@
 from flask import render_template, redirect, url_for, abort, flash, request, current_app, make_response
-from flask.ext.login import login_required, current_user, login_user
+from flask.ext.login import current_user, login_user
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm, LoginForm
 from .. import db
 from ..models import Role, User, Post, Permission, Comment
-from ..decorators import admin_required, permission_required
+from ..decorators import login_required, login_required2
+
 
 
 
@@ -21,7 +22,10 @@ def index():
         flash('Invalid username or password.')
     return render_template('index.html', form=form)
 
+
+
 @main.route('/home', methods = ['GET', 'POST'])
+@login_required
 def home():
     form = PostForm()
     if form.validate_on_submit():
@@ -44,6 +48,7 @@ def home():
 
 
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
+@login_required
 def post(id):
     post = Post.query.get_or_404(id)
     form = CommentForm()
@@ -68,6 +73,7 @@ def post(id):
 
 
 @main.route('/user/<username>')
+@login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     posts = user.posts.order_by(Post.timestamp.desc()).all()
@@ -94,7 +100,7 @@ def edit_profile():
 
 @main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
 @login_required
-@admin_required
+
 def edit_profile_admin(id):
     user = User.query.get_or_404(id)
     form = EditProfileAdminForm(user=user)
@@ -170,7 +176,7 @@ def unfollow(username):
     flash('You are not following %s anymore.' % username)
     return redirect(url_for('.user', username=username))
 
-
+@login_required
 @main.route('/followers/<username>')
 def followers(username):
     user = User.query.filter_by(username=username).first()
@@ -187,7 +193,7 @@ def followers(username):
                            endpoint='.followers', pagination=pagination,
                            follows=follows)
 
-
+@login_required
 @main.route('/followed-by/<username>')
 def followed_by(username):
     user = User.query.filter_by(username=username).first()

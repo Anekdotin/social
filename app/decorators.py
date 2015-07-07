@@ -1,20 +1,25 @@
 __author__ = 'ed'
 from functools import wraps
-from flask import abort
+from flask import abort, session, flash, redirect, url_for, request, g
 from flask.ext.login import current_user
-from .models import Permission
 
 
-def permission_required(permission):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if not current_user.can(permission):
-                abort(403)
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user is None:
+            return redirect(url_for('.index', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def login_required2(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if current_user is None:
             return f(*args, **kwargs)
-        return decorated_function
-    return decorator
-
-
-def admin_required(f):
-    return permission_required(Permission.ADMINISTER)(f)
+        else:
+            flash('You need to login first.')
+            return redirect(url_for('.index'))
+    return wrap
