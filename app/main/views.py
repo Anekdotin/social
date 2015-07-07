@@ -1,23 +1,35 @@
 from flask import render_template, redirect, url_for, abort, flash, request, current_app, make_response
-from flask.ext.login import login_required, current_user
+from flask.ext.login import login_required, current_user, login_user
 from . import main
-from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm
+from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm, LoginForm
 from .. import db
 from ..models import Role, User, Post, Permission, Comment
 from ..decorators import admin_required, permission_required
 
 
 
+
 @main.route('/', methods = ['GET', 'POST'])
 @main.route('/index', methods = ['GET', 'POST'])
 def index():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is not None and user.verify_password(form.password.data):
+            login_user(user, form.remember_me.data)
+            return redirect(url_for('main.home'))
+        flash('Invalid username or password.')
+    return render_template('index.html', form=form)
+
+@main.route('/home', methods = ['GET', 'POST'])
+def home():
     form = PostForm()
     if form.validate_on_submit():
         post = Post(body=form.body.data,  author=current_user._get_current_object())
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
-        return redirect(url_for('.index'))
+        return redirect(url_for('.home'))
     page = request.args.get('page', 1, type=int)
     show_followed = False
     if current_user:
@@ -28,7 +40,8 @@ def index():
         query = Post.query
 
     posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('index.html', form=form, posts=posts,  show_followed=show_followed, page=page)
+    return render_template('home.html', form=form, posts=posts,  show_followed=show_followed, page=page)
+
 
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
