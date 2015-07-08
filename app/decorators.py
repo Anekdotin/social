@@ -5,21 +5,13 @@ from flask.ext.login import current_user
 
 
 
+
 def login_required(f):
     @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user is None:
-            return redirect(url_for('.index', next=request.url))
-        return f(*args, **kwargs)
-    return decorated_function
-
-
-def login_required2(f):
-    @wraps(f)
     def wrap(*args, **kwargs):
-        if current_user is None:
+        if not current_user.is_anonymous():
             return f(*args, **kwargs)
         else:
             flash('You need to login first.')
-            return redirect(url_for('.index'))
+            return redirect(url_for('main.index'))
     return wrap

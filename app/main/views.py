@@ -4,7 +4,7 @@ from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm, LoginForm
 from .. import db
 from ..models import Role, User, Post, Permission, Comment
-from ..decorators import login_required, login_required2
+from ..decorators import login_required
 
 
 
@@ -147,7 +147,7 @@ def edit(id):
 
 @main.route('/follow/<username>')
 @login_required
-#@permission_required(Permission.FOLLOW)
+
 def follow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -163,7 +163,7 @@ def follow(username):
 
 @main.route('/unfollow/<username>')
 @login_required
-#@permission_required(Permission.FOLLOW)
+
 def unfollow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -176,8 +176,9 @@ def unfollow(username):
     flash('You are not following %s anymore.' % username)
     return redirect(url_for('.user', username=username))
 
-@login_required
+
 @main.route('/followers/<username>')
+@login_required
 def followers(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -193,8 +194,9 @@ def followers(username):
                            endpoint='.followers', pagination=pagination,
                            follows=follows)
 
-@login_required
+
 @main.route('/followed-by/<username>')
+@login_required
 def followed_by(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
