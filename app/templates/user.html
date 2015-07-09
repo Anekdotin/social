@@ -15,7 +15,47 @@
                 From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>
             {% endif %}
         </p>
+
+
+
+
+
+
+
+
         {% endif %}
+
+
+{% if filename %}
+  <h1>some text <img src="{{ url_for('send_file', filename=filename) }}">more text!</h1>
+{% else %}
+  <h1>no image for whatever reason</h1>
+{% endif %}
+
+
+
+{% if current_user %}
+
+      <form action="upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file"><br /><br />
+        <input type="submit" value="Upload">
+
+ {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         {% if current_user.is_administrator() %}
         <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
         {% endif %}

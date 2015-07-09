@@ -1,14 +1,25 @@
 __author__ = 'ed'
-WTF_CSRF_ENABLED = True
+WTF_CSRF_ENABLED = False
 SECRET_KEY = 'you-will-never-guess'
 import os
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+
+
+# upload images
+
+UPLOAD_FOLDER = 'profilepics/'
+ALLOWED_EXTENSIONS = set(['jpg'])
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
 
 
 # email server
