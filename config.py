@@ -12,12 +12,8 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 # upload images
 
-UPLOAD_FOLDER = 'profilepics/'
-ALLOWED_EXTENSIONS = set(['jpg'])
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+UPLOAD_FOLDER = '/home/ed/Development/Python/social/profilepics'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 
 

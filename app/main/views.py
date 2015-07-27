@@ -1,14 +1,19 @@
-from flask import render_template, redirect, url_for, abort, flash, request, current_app, make_response, send_from_directory, session
+from flask import render_template, redirect, url_for, g, abort, flash, request, current_app, make_response, send_from_directory, session
 from flask.ext.login import current_user, login_user
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm, LoginForm
 from .. import db
 from ..models import Role, User, Post, Permission, Comment
 from ..decorators import login_required
-import os
-from config import allowed_file
-from werkzeug import secure_filename
+
 from app import app
+
+
+@main.before_request
+def before_request():
+    #current_user.ping()
+    g.user = current_user
+
 
 @main.route('/', methods = ['GET', 'POST'])
 @main.route('/index', methods = ['GET', 'POST'])
@@ -77,6 +82,7 @@ def post(id):
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     posts = user.posts.order_by(Post.timestamp.desc()).all()
+
     return render_template('user.html', user=user, posts=posts)
 
 
@@ -228,19 +234,25 @@ def show_followed():
     resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
     return resp
 
+import os
+from werkzeug import secure_filename
+from config import ALLOWED_EXTENSIONS
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-
-@main.route("/upload", methods=['GET', 'POST'])
-@login_required
-def upload():
+@main.route('/upload', methods=['GET', 'POST'])
+def profilepic():
     if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('.home'))
-    return """
+
+            file = request.files['file']
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                return render_template('user.html', user=current_user)
+
+    return '''
     <!doctype html>
     <title>Upload new File</title>
     <h1>Upload new File</h1>
@@ -248,5 +260,4 @@ def upload():
       <p><input type=file name=file>
          <input type=submit value=Upload>
     </form>
-    <p>%s</p>
-    """ % "<br>".join(os.listdir(app.config['UPLOAD_FOLDER'],))
+    '''

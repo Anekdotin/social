@@ -1,5 +1,5 @@
 __author__ = 'ed'
-from flask import render_template, redirect, request, url_for, flash
+from flask import render_template, redirect, request, url_for, flash, g
 from flask.ext.login import login_user, logout_user, login_required, \
     current_user
 from . import auth
@@ -11,10 +11,6 @@ from .forms import ChangePasswordForm,\
 from ..decorators import login_required
 
 
-
-
-def before_request():
-    current_user.ping()
 
 
 @auth.route('/register', methods=['GET', 'POST'])
