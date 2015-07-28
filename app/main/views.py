@@ -6,7 +6,6 @@ from .. import db
 from ..models import Role, User, Post, Permission, Comment
 from ..decorators import login_required
 
-from app import app
 
 
 @main.before_request
@@ -20,7 +19,7 @@ def before_request():
 def index():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             return redirect(url_for('main.home'))
@@ -111,7 +110,7 @@ def edit_profile_admin(id):
     user = User.query.get_or_404(id)
     form = EditProfileAdminForm(user=user)
     if form.validate_on_submit():
-        user.email = form.email.data
+
         user.username = form.username.data
 
         user.role = Role.query.get(form.role.data)
@@ -122,7 +121,7 @@ def edit_profile_admin(id):
         db.session.commit()
         flash('The profile has been updated.')
         return redirect(url_for('.user', username=user.username))
-    form.email.data = user.email
+
     form.username.data = user.username
 
     form.role.data = user.role_id
@@ -219,8 +218,9 @@ def followed_by(username):
                            follows=follows)
 
 
+
 @main.route('/all')
-@login_required
+
 def show_all():
     resp = make_response(redirect(url_for('.index')))
     resp.set_cookie('show_followed', '', max_age=30*24*60*60)
@@ -233,31 +233,3 @@ def show_followed():
     resp = make_response(redirect(url_for('.index')))
     resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
     return resp
-
-import os
-from werkzeug import secure_filename
-from config import ALLOWED_EXTENSIONS
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-
-@main.route('/upload', methods=['GET', 'POST'])
-def profilepic():
-    if request.method == 'POST':
-
-            file = request.files['file']
-            if file and file.filename:
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                return render_template('user.html', user=current_user)
-
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    '''

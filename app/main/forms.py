@@ -4,23 +4,21 @@ from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
 from wtforms.validators import Required, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError, validators
 from ..models import Role, User
-import os
-from config import UPLOAD_FOLDER
-import re
 
 
 
 class LoginForm(Form):
-    email = StringField('Email', validators=[Required(), Length(1, 64),
-                                             Email()])
+    username = StringField('Username', validators=[
+        Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
+                                          'Usernames must have only letters, '
+                                          'numbers, dots or underscores')])
     password = PasswordField('Password', validators=[Required()])
     remember_me = BooleanField('Keep me logged in')
     submit = SubmitField('Log In')
 
 
 class RegistrationForm(Form):
-    email = StringField('Email', validators=[Required(), Length(1, 64),
-                                           Email()])
+
     username = StringField('Username', validators=[
         Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                           'Usernames must have only letters, '
@@ -30,9 +28,7 @@ class RegistrationForm(Form):
     password2 = PasswordField('Confirm password', validators=[Required()])
     submit = SubmitField('Register')
 
-    def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
-            raise ValidationError('Email already registered.')
+
 
     def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
@@ -62,8 +58,7 @@ class PostForm(Form):
 
 
 class EditProfileAdminForm(Form):
-    email = StringField('Email', validators=[Required(), Length(1, 64),
-                                             Email()])
+
     username = StringField('Username', validators=[
         Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                           'Usernames must have only letters, '
@@ -81,10 +76,7 @@ class EditProfileAdminForm(Form):
                              for role in Role.query.order_by(Role.name).all()]
         self.user = user
 
-    def validate_email(self, field):
-        if field.data != self.user.email and \
-                User.query.filter_by(email=field.data).first():
-            raise ValidationError('Email already registered.')
+
 
     def validate_username(self, field):
         if field.data != self.user.username and \
